@@ -1,3 +1,3 @@
-# iangaunt/rust-projects
+# iangaunt/rust-template
 
-My attempts at learning Rust through building various projects and libraries.
+A template for Rust projects with Cargo compilation.
