@@ -291,3 +291,18 @@ pub fn pointers() {
 
     // Rust will not compile if you have dangling pointers (pointers to variables which are dropped)
 }
+
+pub fn tutorial() {
+    let play_guessing: bool = false;
+    let tutorial_use: bool = false;
+
+    if tutorial_use {
+        looper();
+        variables();
+        logic_practice();
+        ownership();
+        pointers();
+    }
+    
+    if play_guessing { guessing(); }
+}
