@@ -8,81 +8,26 @@ use std::io::Error;
 mod terminal { include!("terminal.rs"); }
 use terminal::{Position, Size, Terminal};
 
+mod view { include!("view.rs"); }
+use view::View;
+
 #[derive(Copy, Clone, Debug, Default)]
 struct Location {
     x: usize,
     y: usize
 }
 
-pub struct View {}
-
-impl View {
-    fn center(msg: String) -> Result<(), Error> {
-        let mut run = format!("{}", msg);
-        
-        let width: usize = Terminal::size()?.width as usize;
-        let spaces = " ".repeat((width - msg.len()) / 2 - 1);
-
-        run = format!("~{spaces}{run}");
-        run.truncate(width);
-
-        Terminal::print(&run)?;
-
-        Ok(())
-    }
-
-    pub fn hello_world() -> Result<(), Error> {
-        let Size{height, ..}: Size = Terminal::size()?;
-
-        for i in 0..height {
-            Terminal::clear_line()?;
-            
-            if i == 0 {
-                Terminal::print("~ Hello, world!")?;
-            } else {
-                Terminal::print("~")?;
-                
-            }
-
-            if i + 1 < height {
-                Terminal::print("\r\n")?;
-            }
-        }
-
-        Ok(())
-    }
-
-    pub fn render() -> Result<(), Error>  {
-        let Size{height, ..}: Size = Terminal::size()?;
-
-        for i in 0..height {
-            Terminal::clear_line()?;
-            
-            if i == height / 3 {
-                Self::center(String::from("txt-editor :: v1.0.0"))?;
-            } else {
-                Terminal::print("~")?;
-                
-            }
-
-            if i + 1 < height {
-                Terminal::print("\r\n")?;
-            }
-        }
-
-        Ok(())
-    }
-}
-
 #[derive(Default)]
 pub struct Editor {
     should_quit: bool,
-    location: Location
+    location: Location,
+    viewer: View
 }
 
 impl Editor {
     pub fn run(&mut self) {
         Terminal::initialize().unwrap();
+        self.viewer.init().unwrap();
         let result = self.repl();
 
         Terminal::terminate().unwrap();
@@ -109,9 +54,9 @@ impl Editor {
         
         if self.should_quit {
             Terminal::clear_screen()?;
-            Terminal::print("Goodbye.")?;
+            self.viewer.goodbye()?;
         } else {
-            View::hello_world()?;
+            self.viewer.render()?;
             Terminal::move_caret(Position{ 
                 col: self.location.x, 
                 row: self.location.y 
