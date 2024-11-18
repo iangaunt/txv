@@ -6,14 +6,14 @@ use std::io::{Error, stdout, Write};
 
 #[derive(Copy, Clone)]
 pub struct Size {
-    pub height: u16,
-    pub width: u16
+    pub height: usize,
+    pub width: usize
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct Position {
-    pub x: u16,
-    pub y: u16
+    pub col: usize,
+    pub row: usize
 }
 
 pub struct Terminal;
@@ -27,17 +27,22 @@ impl Terminal {
     pub fn initialize() -> Result<(), Error> {
         enable_raw_mode()?;
         Self::clear_screen()?;
-        Self::move_cursor(Position { x: 0, y: 0 })?;
+        Self::execute()?;
         Ok(())
     }
 
-    pub fn move_cursor(pos: Position) -> Result<(), Error> {
-        queue!(stdout(), MoveTo(pos.x, pos.y))
+    pub fn hide_caret() -> Result<(), Error> {
+        queue!(stdout(), Hide)?;
+        Ok(())
     }
 
-    pub fn clear_screen() -> Result<(), Error> {
-        queue!(stdout(), Clear(ClearType::All))?;
+    pub fn show_caret() -> Result<(), Error> {
+        queue!(stdout(), Show)?;
         Ok(())
+    }
+
+    pub fn move_caret(pos: Position) -> Result<(), Error> {
+        queue!(stdout(), MoveTo(pos.col as u16, pos.row as u16))
     }
 
     pub fn clear_line() -> Result<(), Error> {
@@ -45,13 +50,8 @@ impl Terminal {
         Ok(())
     }
 
-    pub fn hide_cursor() -> Result<(), Error> {
-        queue!(stdout(), Hide)?;
-        Ok(())
-    }
-
-    pub fn show_cursor() -> Result<(), Error> {
-        queue!(stdout(), Show)?;
+    pub fn clear_screen() -> Result<(), Error> {
+        queue!(stdout(), Clear(ClearType::All))?;
         Ok(())
     }
 
@@ -62,7 +62,10 @@ impl Terminal {
 
     pub fn size() -> Result<Size, Error> {
         let (width, height) = size()?;
-        Ok(Size { width, height })
+        let w_usize = width as usize;
+        let h_usize = height as usize;
+
+        Ok(Size { width: w_usize, height: h_usize })
     }
 
     pub fn execute() -> Result<(), Error> {

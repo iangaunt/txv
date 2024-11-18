@@ -1,4 +1,4 @@
-mod editor { include!("editor.rs");}
+mod editor { include!("editor/editor.rs");}
 use editor::Editor;
 
 pub fn main() {
