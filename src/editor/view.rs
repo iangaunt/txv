@@ -1,6 +1,4 @@
-mod terminal { include!("terminal.rs"); }
-use terminal::{Position, Size, Terminal};
-
+use crate::terminal::{Position, Size, Terminal};
 use std::io::Error;
 
 #[derive(Default)]
@@ -8,19 +6,19 @@ pub struct Buffer {
     pub vector: Vec<String>
 }
 
-impl Buffer {}
+impl Buffer {
+    pub fn is_empty(&self) -> bool {
+        self.vector.len() == 0
+    }
+}
 
 #[derive(Default)]
 pub struct View {
-    buffer: Buffer
+    pub buffer: Buffer
 }
 
 impl View {
-    pub fn init(&mut self) -> Result<(), Error> {
-        self.buffer.vector.push(String::from("Hello, world!"));
-        self.buffer.vector.push(String::from("txt-editor :: v1.0.0"));
-        Ok(())
-    }
+    pub fn init(&mut self) -> Result<(), Error> { Ok(()) }
 
     fn center(msg: &str) -> Result<String, Error> {
         let mut run = format!("{}", msg);
@@ -33,7 +31,7 @@ impl View {
         Ok(run)
     }
 
-    pub fn goodbye(&self) -> Result<(), Error> {
+    pub fn load_default(&self, msg: &String) -> Result<(), Error> {
         let Size{height, ..}: Size = Terminal::size()?;
 
         for i in 0..height {
@@ -41,7 +39,7 @@ impl View {
             Terminal::move_caret(Position { col: 0, row: i })?;
 
             if i == height / 3 {
-                let gb = Self::center(&String::from("Goodbye."))?;
+                let gb = Self::center(&String::from(msg))?;
                 Terminal::print(&gb)?;
             } else {
                 Terminal::print("~")?;
@@ -77,5 +75,19 @@ impl View {
         }
 
         Ok(())
+    }
+
+    pub fn load(&mut self, filename: &str) -> Result<(), Error> {
+        let contents = std::fs::read_to_string(filename)?;
+        let buff_vec = &mut self.buffer.vector;
+    
+        for l in contents.lines() {
+            buff_vec.push(String::from(l));
+        }
+        Ok(())
+    }
+
+    pub fn is_buffer_empty(&self) -> bool {
+        self.buffer.is_empty()
     }
 }

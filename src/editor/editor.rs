@@ -3,13 +3,10 @@ use crossterm::event::{
     read, Event::{self, Key}, KeyCode, KeyEvent, KeyEventKind, KeyModifiers
 };
 
+use crate::terminal::{Position, Size, Terminal};
+use crate::view::View;
+
 use std::io::Error;
-
-mod terminal { include!("terminal.rs"); }
-use terminal::{Position, Size, Terminal};
-
-mod view { include!("view.rs"); }
-use view::View;
 
 #[derive(Copy, Clone, Debug, Default)]
 struct Location {
@@ -21,17 +18,26 @@ struct Location {
 pub struct Editor {
     should_quit: bool,
     location: Location,
-    viewer: View
+    pub viewer: View
 }
 
 impl Editor {
     pub fn run(&mut self) {
         Terminal::initialize().unwrap();
         self.viewer.init().unwrap();
-        let result = self.repl();
+        if self.viewer.is_buffer_empty() {
+
+        }
+        
+        let result: Result<(), Error> = self.repl();
 
         Terminal::terminate().unwrap();
         result.unwrap();
+    }
+
+    pub fn load(&mut self, filename: &str) -> Result<(), Error> {
+        self.viewer.load(filename)?;
+        Ok(())
     }
 
     fn repl(&mut self) -> Result<(), Error> {
@@ -54,7 +60,7 @@ impl Editor {
         
         if self.should_quit {
             Terminal::clear_screen()?;
-            self.viewer.goodbye()?;
+            self.viewer.load_default(&String::from("Goodbye."))?;
         } else {
             self.viewer.render()?;
             Terminal::move_caret(Position{ 

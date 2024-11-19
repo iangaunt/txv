@@ -16,6 +16,7 @@ pub struct Position {
     pub row: usize
 }
 
+#[derive(Default)]
 pub struct Terminal;
 
 impl Terminal {
