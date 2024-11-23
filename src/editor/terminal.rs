@@ -1,3 +1,4 @@
+use colored::Colorize;
 use crossterm::cursor::{Hide, MoveTo, Show};
 use crossterm::queue;
 use crossterm::style::Print;
@@ -57,7 +58,28 @@ impl Terminal {
     }
 
     pub fn print(string: &str) -> Result<(), Error> {
-        queue!(stdout(), Print(string))?;
+        let mut str_chars = string.chars();
+        let mut running = String::from("");
+
+        for _i in 0..string.len() {
+            let c = str_chars.next().unwrap();
+
+            if running == "pub" {
+                queue!(stdout(), Print(
+                    format!("{}", (format!("{}", c)).truecolor(227, 216, 120)))
+                )?;
+                running = String::from("");
+            } else if c == '~' || c == ':' || c == '{' || c == '}' {
+                queue!(stdout(), Print(
+                    format!("{}", (format!("{}", c)).truecolor(34, 37, 43)))
+                )?;
+                running = String::from("");
+            } else {
+                if c != ' ' { running.push(c) };
+                queue!(stdout(), Print(c))?;
+            }
+        }
+        
         Ok(())
     }
 

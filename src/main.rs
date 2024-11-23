@@ -1,10 +1,11 @@
+mod buffer { include!("editor/buffer.rs"); }
 mod editor { include!("editor/editor.rs");}
 mod terminal { include!("editor/terminal.rs"); }
 mod view { include!("editor/view.rs"); }
 
 use editor::Editor;
 
-// ./rust-projects.exe ./text.txt
+// cd ./target/debug :: ./rust-projects.exe ./text.txt
 
 pub fn main() {
     let mut editor = Editor::default();

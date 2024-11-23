@@ -1,3 +1,3 @@
-# iangaunt/rust-template
+# iangaunt/txt
 
-A template for Rust projects with Cargo compilation.
+A WIP text editor for the terminal with Rust.
