@@ -1,9 +1,11 @@
-use colored::Colorize;
+use colored::{ColoredString, Colorize};
 use crossterm::cursor::{Hide, MoveTo, Show};
 use crossterm::queue;
 use crossterm::style::Print;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size, Clear, ClearType};
 use std::io::{Error, stdout, Write};
+
+use crate::highlighter::Highlighter;
 
 #[derive(Copy, Clone)]
 pub struct Size {
@@ -18,18 +20,20 @@ pub struct Position {
 }
 
 #[derive(Default)]
-pub struct Terminal;
+pub struct Terminal {
+    pub highlighter: Highlighter
+}
 
 impl Terminal {
-    pub fn terminate() -> Result<(), Error> {
-        disable_raw_mode()?;
-        Ok(())
-    }
-
     pub fn initialize() -> Result<(), Error> {
         enable_raw_mode()?;
         Self::clear_screen()?;
         Self::execute()?;
+        Ok(())
+    }
+
+    pub fn terminate() -> Result<(), Error> {
+        disable_raw_mode()?;
         Ok(())
     }
 
@@ -58,26 +62,15 @@ impl Terminal {
     }
 
     pub fn print(string: &str) -> Result<(), Error> {
-        let mut str_chars = string.chars();
-        let mut running = String::from("");
+        queue!(stdout(), Print(string))?;
+        Ok(())
+    }
 
-        for _i in 0..string.len() {
-            let c = str_chars.next().unwrap();
-
-            if running == "pub" {
-                queue!(stdout(), Print(
-                    format!("{}", (format!("{}", c)).truecolor(227, 216, 120)))
-                )?;
-                running = String::from("");
-            } else if c == '~' || c == ':' || c == '{' || c == '}' {
-                queue!(stdout(), Print(
-                    format!("{}", (format!("{}", c)).truecolor(34, 37, 43)))
-                )?;
-                running = String::from("");
-            } else {
-                if c != ' ' { running.push(c) };
-                queue!(stdout(), Print(c))?;
-            }
+    pub fn vec_print(v: &Vec<ColoredString>) -> Result<(), Error> {
+        for i in 0..v.len() {
+            queue!(stdout(), Print(
+                format!("{}", v[i])
+            ))?;
         }
         
         Ok(())

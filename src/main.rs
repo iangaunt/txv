@@ -1,5 +1,6 @@
 mod buffer { include!("editor/buffer.rs"); }
 mod editor { include!("editor/editor.rs");}
+mod highlighter { include!("editor/highlighter.rs"); }
 mod terminal { include!("editor/terminal.rs"); }
 mod view { include!("editor/view.rs"); }
 

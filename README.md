@@ -1,3 +1,3 @@
 # iangaunt/txt
 
-A WIP text editor for the terminal with Rust.
+A text editor in the terminal built with Rust. Contains built-in syntax highlighting, file saving / editing.

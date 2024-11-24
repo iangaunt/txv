@@ -4,17 +4,21 @@ use std::io::Error;
 
 use crate::buffer::Buffer;
 use crate::editor::Location;
+use crate::highlighter::Highlighter;
 use crate::terminal::{Position, Size, Terminal};
 
 #[derive(Default)]
 pub struct View {
     pub buffer: Buffer,
-    pub scroll_offset: Position
+    pub scroll_offset: Position,
+    pub highlighter: Highlighter
 }
 
 impl View {
     pub fn init(&mut self) -> Result<(), Error> { 
         self.buffer.location = Location { x: 2, y: 0 };
+        self.highlighter.init()?;
+
         Ok(())
     }
 
@@ -68,24 +72,29 @@ impl View {
         let Size{height, ..}: Size = Terminal::size()?;
         let buff_vec = &self.buffer.vector;
 
+        let mut tilda_vec: Vec<String> = Vec::new();
+        tilda_vec.push(String::from("~"));
+
         let sx: usize = (&self.scroll_offset).col;
         let sy: usize = (&self.scroll_offset).row;
 
         for i in 0..height {
             Terminal::move_caret(Position { col: 0, row: i })?;
             Terminal::clear_line()?;
-            
+
             if buff_vec.len() > (i + sy) {
                 let mut l: &str = &buff_vec[i + sy];
                 if l.len() > sx {
                     l = &l[sx..];
                     let line_format = format!("~ {l}",);
-                    Terminal::print(&line_format)?;
+                    Terminal::vec_print(
+                        &self.highlighter.tokenize(&line_format).unwrap()
+                    )?;
                 } else {
-                    Terminal::print("~")?;
+                    Terminal::vec_print(&self.highlighter.tokenize("~").unwrap())?;
                 }
             } else {
-                Terminal::print("~")?;
+                Terminal::vec_print(&self.highlighter.tokenize("~").unwrap())?;
             }
         }
 
