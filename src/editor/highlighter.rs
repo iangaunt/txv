@@ -40,7 +40,7 @@ impl Highlighter {
         self.hash.insert(String::from("#"), "#".truecolor(34, 37, 43));
 
         self.hash.insert(String::from("use"), "use".truecolor(5, 175, 242).bold());
-        self.hash.insert(String::from("pub"), "pub".truecolor(5, 175, 242));
+        self.hash.insert(String::from("pub"), "pub".truecolor(5, 175, 242).bold());
         self.hash.insert(String::from("struct"), "struct".truecolor(5, 175, 242));
         self.hash.insert(String::from("let"), "let".truecolor(5, 175, 242));
         self.hash.insert(String::from("mut"), "mut".truecolor(5, 175, 242));
