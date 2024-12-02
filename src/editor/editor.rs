@@ -1,12 +1,11 @@
 use crossterm::event::{
     read, Event::{self, Key}, KeyCode, KeyEvent, KeyEventKind, KeyModifiers
 };
+use std::io::Error;
+use std::path::Path;
 
 use crate::terminal::{Position, Terminal};
 use crate::view::View;
-
-use std::io::Error;
-use std::path::Path;
 
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Location {

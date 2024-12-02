@@ -1,4 +1,4 @@
-use colored::{ColoredString, Colorize};
+use colored::ColoredString;
 use crossterm::cursor::{Hide, MoveTo, Show};
 use crossterm::queue;
 use crossterm::style::Print;
@@ -61,7 +61,7 @@ impl Terminal {
         Ok(())
     }
 
-    pub fn print(string: &str) -> Result<(), Error> {
+    pub fn _print(string: &str) -> Result<(), Error> {
         queue!(stdout(), Print(string))?;
         Ok(())
     }
