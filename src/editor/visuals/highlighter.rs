@@ -41,10 +41,10 @@ impl Highlighter {
 
         self.hash.insert(String::from("use"), "use".truecolor(5, 175, 242).bold());
         self.hash.insert(String::from("pub"), "pub".truecolor(5, 175, 242).bold());
-        self.hash.insert(String::from("struct"), "struct".truecolor(5, 175, 242));
-        self.hash.insert(String::from("let"), "let".truecolor(5, 175, 242));
-        self.hash.insert(String::from("mut"), "mut".truecolor(5, 175, 242));
-        self.hash.insert(String::from("derive"), "derive".truecolor(5, 175, 242));
+        self.hash.insert(String::from("struct"), "struct".truecolor(5, 175, 242).bold());
+        self.hash.insert(String::from("let"), "let".truecolor(5, 175, 242).bold());
+        self.hash.insert(String::from("mut"), "mut".truecolor(5, 175, 242).bold());
+        self.hash.insert(String::from("derive"), "derive".truecolor(5, 175, 242).bold());
         self.hash.insert(String::from("fn"), "fn".truecolor(5, 175, 242));
         self.hash.insert(String::from("impl"), "impl".truecolor(5, 175, 242));
         self.hash.insert(String::from("self"), "self".truecolor(5, 175, 242));

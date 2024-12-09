@@ -23,7 +23,7 @@ pub struct Editor {
 
 impl Editor {
     pub fn run(&mut self) {
-        let viewer: &mut View = &mut self.viewer;
+        let viewer: &mut mut self.viewer;
         
         Terminal::initialize().unwrap();
         viewer.init().unwrap();

@@ -1,8 +1,8 @@
-mod buffer { include!("editor/buffer.rs"); }
+mod buffer { include!("editor/text/buffer.rs"); }
 mod editor { include!("editor/editor.rs");}
-mod highlighter { include!("editor/highlighter.rs"); }
-mod terminal { include!("editor/terminal.rs"); }
-mod view { include!("editor/view.rs"); }
+mod highlighter { include!("editor/visuals/highlighter.rs"); }
+mod terminal { include!("editor/visuals/terminal.rs"); }
+mod view { include!("editor/text/view.rs"); }
 
 use editor::Editor;
 
