@@ -10,7 +10,6 @@ use crate::terminal::{Position, Size, Terminal};
 #[derive(Default)]
 pub struct View {
     pub buffer: Buffer,
-    pub scroll_offset: Position,
     pub highlighter: Highlighter
 }
 
@@ -47,8 +46,8 @@ impl View {
         let Size{height, ..}: Size = Terminal::size()?;
         let buff_vec = &mut self.buffer.vector;
 
-        let sx: usize = (&self.scroll_offset).col;
-        let sy: usize = (&self.scroll_offset).row;
+        let sx: usize = (&self.buffer.scroll_offset).col;
+        let sy: usize = (&self.buffer.scroll_offset).row;
 
         for i in sy..height + sy {
             let mut st: String = String::from("");
@@ -75,8 +74,8 @@ impl View {
         let mut tilda_vec: Vec<String> = Vec::new();
         tilda_vec.push(String::from("~"));
 
-        let sx: usize = (&self.scroll_offset).col;
-        let sy: usize = (&self.scroll_offset).row;
+        let sx: usize = (&self.buffer.scroll_offset).col;
+        let sy: usize = (&self.buffer.scroll_offset).row;
 
         for i in 0..height {
             Terminal::move_caret(Position { col: 0, row: i })?;
@@ -103,7 +102,7 @@ impl View {
     
     pub fn move_to(&mut self, key_code: KeyCode) -> Result<(), Error> {
         let Location { mut x, mut y} = self.buffer.location;
-        let Position { mut col, mut row } = self.scroll_offset;
+        let Position { mut col, mut row } = self.buffer.scroll_offset;
 
         let Size { width, height } = Terminal::size()?;
 
@@ -181,7 +180,7 @@ impl View {
         }
 
         self.buffer.location = Location { x, y };
-        self.scroll_offset = Position { col, row };
+        self.buffer.scroll_offset = Position { col, row };
 
         Ok(())
     }

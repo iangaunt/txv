@@ -45,19 +45,19 @@ impl Highlighter {
         self.hash.insert(String::from("let"), "let".truecolor(5, 175, 242).bold());
         self.hash.insert(String::from("mut"), "mut".truecolor(5, 175, 242).bold());
         self.hash.insert(String::from("derive"), "derive".truecolor(5, 175, 242).bold());
-        self.hash.insert(String::from("fn"), "fn".truecolor(5, 175, 242));
-        self.hash.insert(String::from("impl"), "impl".truecolor(5, 175, 242));
-        self.hash.insert(String::from("self"), "self".truecolor(5, 175, 242));
+        self.hash.insert(String::from("fn"), "fn".truecolor(5, 175, 242).bold());
+        self.hash.insert(String::from("impl"), "impl".truecolor(5, 175, 242).bold());
+        self.hash.insert(String::from("self"), "self".truecolor(5, 175, 242).bold());
 
-        self.hash.insert(String::from("bool"), "bool".truecolor(232, 213, 9));
-        self.hash.insert(String::from("if"), "if".truecolor(232, 213, 9));
-        self.hash.insert(String::from("loop"), "loop".truecolor(232, 213, 9));
-        self.hash.insert(String::from("Result"), "Result".truecolor(232, 213, 9));
-        self.hash.insert(String::from("Error"), "Error".truecolor(232, 213, 9));
-        self.hash.insert(String::from("std"), "std".truecolor(232, 213, 9));
-        self.hash.insert(String::from("Ok"), "Ok".truecolor(232, 213, 9));
-        self.hash.insert(String::from("unwrap"), "unwrap".truecolor(232, 213, 9));
-        self.hash.insert(String::from("break"), "break".truecolor(232, 213, 9));
+        self.hash.insert(String::from("bool"), "bool".truecolor(232, 213, 9).bold());
+        self.hash.insert(String::from("if"), "if".truecolor(232, 213, 9).bold());
+        self.hash.insert(String::from("loop"), "loop".truecolor(232, 213, 9).bold());
+        self.hash.insert(String::from("Result"), "Result".truecolor(232, 213, 9).bold());
+        self.hash.insert(String::from("Error"), "Error".truecolor(232, 213, 9).bold());
+        self.hash.insert(String::from("std"), "std".truecolor(232, 213, 9).bold());
+        self.hash.insert(String::from("Ok"), "Ok".truecolor(232, 213, 9).bold());
+        self.hash.insert(String::from("unwrap"), "unwrap".truecolor(232, 213, 9).bold());
+        self.hash.insert(String::from("break"), "break".truecolor(232, 213, 9).bold());
 
         Ok(())
     }

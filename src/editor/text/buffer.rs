@@ -1,4 +1,5 @@
 use crate::editor::Location;
+use crate::terminal::Position;
 
 use core::cmp::max;
 use std::io::Error;
@@ -6,7 +7,8 @@ use std::io::Error;
 #[derive(Default)]
 pub struct Buffer {
     pub vector: Vec<String>,
-    pub location: Location
+    pub location: Location,
+    pub scroll_offset: Position,
 }
 
 /// A buffer for storing the contents of each line.
@@ -20,7 +22,7 @@ impl Buffer {
     /// where the current location of the buffer is.
     pub fn add_char(&mut self, key_code: char) -> Result<(), Error> {
         let b_vec = &mut self.vector;
-        let b_line = b_vec.get_mut(self.location.y).unwrap();
+        let b_line = b_vec.get_mut(self.location.y + self.scroll_offset.row).unwrap();
         let mut b_chars = b_line.chars();
         
         // If the character is not at the beginning, remove one from the index.
@@ -46,7 +48,7 @@ impl Buffer {
         if !added { new_line.push(key_code); }
 
         // Edit the new line in the internal buffer.
-        b_vec[self.location.y] = new_line;
+        b_vec[self.location.y + self.scroll_offset.row] = new_line;
         self.location.x = self.location.x.saturating_add(1);
 
         Ok(())
@@ -56,7 +58,7 @@ impl Buffer {
     /// if the length of the current line is `0`.
     pub fn delete_char(&mut self) -> Result<(), Error> {
         let b_vec = &mut self.vector;
-        let b_line = b_vec.get_mut(self.location.y).unwrap();
+        let b_line = b_vec.get_mut(self.location.y + self.scroll_offset.row).unwrap();
 
         // If the line is empty, there is nothing to remove.
         if b_line.len() == 0 {
@@ -75,7 +77,7 @@ impl Buffer {
         }
 
         // Edit the new line in the internal buffer.
-        b_vec[self.location.y] = new_line;
+        b_vec[self.location.y + self.scroll_offset.row] = new_line;
         self.location.x = max(2, self.location.x.saturating_sub(1));
 
         Ok(())
