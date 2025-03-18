@@ -1,132 +1,116 @@
-use crossterm::event::{
-    read, Event::{self, Key}, KeyCode, KeyEvent, KeyEventKind, KeyModifiers
-};
+use crate::colors::Colors;
+use colored::{ColoredString, Colorize};
+use std::collections::HashMap;
 use std::io::Error;
-use std::path::Path; this is me 
 
-use crate::terminal::{Position, Terminal};
-use crate::view::View;
-
-#[derive(Copy, Clone, Debug, Default)]
-pub struct Location {
-    pub x: usize,
-    pub y: usize
-}
-
+/// The Highlighter module is used internally to individually color
+/// input tokens before they are pushed into the function queue. 
 #[derive(Default)]
-pub struct Editor {
-    should_quit: bool,
-
-    pub filename: String,
-    pub viewer: View
+pub struct Highlighter {
+    pub hash: HashMap<String, ColoredString>
 }
 
-impl Editor {
-    pub fn run(&mut self) {
-        let viewer: &mut mut self.viewer;
-        
-        Terminal::initialize().unwrap();
-        viewer.init().unwrap();
-        if viewer.is_buffer_empty() {
-            viewer.default(
-                &String::from("txt-editor :: v1.0.0")
-            ).unwrap();
-        }
-        let result: Result<(), Error> = self.repl();
-
-        Terminal::terminate().unwrap();
-        result.unwrap();
+impl Highlighter {
+    /// Adds a string and its colored version to the hash map.
+    pub fn add(&mut self, string: &str, colstr: ColoredString) {
+        self.hash.insert(String::from(string), colstr);
     }
 
-    pub fn load(&mut self, filename: &str) -> Result<(), Error> {
-        self.viewer.load(filename)?;
-        self.filename = String::from(filename);
+    /// Initializes the internal `hash` value with a combination of
+    /// strings to color and the colors they will be output in.
+    /// 
+    /// This will be modified into another separate class later as it is
+    /// currently implemented like shit, and looks like trash.
+    pub fn init(&mut self) -> Result<(), Error> {
+        self.hash.insert(String::from(" "), " ".white());
+
+        let gray: Vec<&str> = vec![
+            ":", ",", "{", "}", "~",
+            "&", "[", "]", "(", ")", 
+            "?", "<", ">", "-", "+", 
+            "|", ".", "#", "=", ";"
+        ];
+        let blue: Vec<&str> = vec![
+            "use", "pub", "struct", "let", "mut", 
+            "derive", "fn", "impl", "self", "if",
+            "in", "from", "crate", "else"
+        ];
+        let yellow: Vec<&str> = vec![
+            "bool", "loop", "Result", "Error", "std", 
+            "Ok", "unwrap", "break", "KeyEvent", "KeyEventKind",
+            "io", "path"
+        ];
+
+        for i in gray {  self.add(i, Colors::to_grey(i)); }
+        for i in blue {  self.add(i, Colors::to_blue(i)); }
+        for i in yellow {  self.add(i, Colors::to_yellow(i)); }
+
+        for _i in 1..10 {}
 
         Ok(())
     }
 
-    fn repl(&mut self) -> Result<(), Error> {
-        loop {
-            self.refresh()?;
-            if self.should_quit {
-                break;
+    /// Tokenizes a string and creates a series of colorized strings which will be
+    /// displayed in the terminal when the buffer is rendered. The `Terminal` object
+    /// can display the contents of the returned vector with `Terminal::print_vec`.
+    pub fn tokenize(&self, l: &str) -> Result<Vec<ColoredString>, Error> {
+        // Fetches the internal hash map.
+        let h: &HashMap<String, ColoredString> = &self.hash;
+
+        // A running list of the colored tokens to be displayed.
+        let mut token_vec: Vec<ColoredString> = Vec::new();
+
+        // An iterator for the `l` string and a running string for storing characters.
+        let mut l_chars = l.chars();
+
+        let mut running: String = String::from("");
+        let mut indiv: String = String::from("");
+
+        for _i in 0..l.len() {
+            // Pushes the current character to the running string.
+            let c: char = l_chars.next().unwrap();
+
+            indiv.push(c);
+
+            // If the individual character matches a stored token,
+            // output its colored version and dump the running string.
+            if h.contains_key(&indiv) {
+                if running.chars().count() > 0 {
+                    if running.chars().nth(0).unwrap().is_ascii_uppercase() {
+                        token_vec.push(Colors::to_yellow(&running));
+                    } else {
+                        token_vec.push(running.truecolor(155, 172, 185));
+                    }
+                }
+                token_vec.push(
+                    h.get(&indiv).unwrap().clone()
+                );
+
+                running = String::from("");
+                indiv = String::from("");
+                continue;
             }
 
-            let event = read()?;
-            self.evaluate(&event)?;
-        }
+            indiv = String::from("");
+            running.push(c);
 
-        Ok(())
-    }
+            // If the running string matches a stored token,
+            // output its colored variant to the terminal.
+            if h.contains_key(&running) {
+                token_vec.push(
+                    h.get(&running).unwrap().clone()
+                );
 
-
-    fn refresh(&mut self) -> Result<(), Error> {
-        let viewer: &mut View = &mut self.viewer;
-        Terminal::hide_caret()?;
-        
-        if self.should_quit {
-            Terminal::clear_screen()?;
-            viewer.default(&String::from("Goodbye."))?;
-        } else {
-            viewer.render()?;
-            Terminal::move_caret(Position{ 
-                col: viewer.buffer.location.x, 
-                row: viewer.buffer.location.y 
-            })?;
-        }
-
-        Terminal::show_caret()?;
-        Terminal::execute()?;
-        Ok(())
-    }
-
-    fn evaluate(&mut self, event: &Event) -> Result<(), Error> {
-        if let Key(KeyEvent {
-            code, 
-            modifiers, 
-            kind: KeyEventKind::Press,
-            ..
-        }) = event
-        {
-            match code {
-                KeyCode::Char('b') if *modifiers == KeyModifiers::CONTROL => {
-                    self.should_quit = true;
-                }
-
-                KeyCode::Char('s') if *modifiers == KeyModifiers::CONTROL => {
-                    self.save();
-                }
-
-                KeyCode::Up
-                | KeyCode::Down
-                | KeyCode::Left
-                | KeyCode::Right
-                | KeyCode::PageDown
-                | KeyCode::PageUp
-                | KeyCode::End
-                | KeyCode::Home => {
-                    self.viewer.move_to(*code)?;
-                }
-
-                KeyCode::Char(c) => {
-                    self.viewer.buffer.add_char(*c)?;
-                }
-
-                KeyCode::Backspace => {
-                    self.viewer.buffer.delete_char()?;
-                }
-
-                _ => (),
+                running = String::from("");
+                continue;
             }
         }
+        
+        // Push the final uncolored token contents to the token vector.
+        token_vec.push(running.white());
 
-        Ok(())
-    }
-
-    pub fn save(&mut self) {
-        let path = Path::new(&self.filename);
-        let vec: &Vec<String> = &self.viewer.buffer.vector;
-
-        std::fs::write(path, vec.join("\n")).expect("");
+        // The string has now been colored and tokenized for output.
+        Ok(token_vec)
     }
 }
+

@@ -27,8 +27,8 @@ impl Buffer {
         
         // If the character is not at the beginning, remove one from the index.
         let mut add_index: usize = self.location.x;
-        if self.location.x > 1 {
-            add_index = self.location.x - 1;
+        if self.location.x > 2 {
+            add_index = self.location.x - 2;
         }
 
         // Parse the new line to add to the buffer.
@@ -70,7 +70,7 @@ impl Buffer {
         
         // If the iterator hits the delete location, ignore the next character.
         for i in 0..b_line.len() - 1 {
-            if i == self.location.x - 2 {
+            if i == self.location.x - 3 {
                 b_chars.next().unwrap();
             }
             new_line.push(b_chars.next().unwrap());
