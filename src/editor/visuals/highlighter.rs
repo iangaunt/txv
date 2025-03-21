@@ -10,7 +10,7 @@ pub struct Highlighter {
     pub hash: HashMap<String, ColoredString>
 }
 
-impl Highlighter {
+impl Hiighlighter {
     /// Adds a string and its colored version to the hash map.
     pub fn add(&mut self, string: &str, colstr: ColoredString) {
         self.hash.insert(String::from(string), colstr);
@@ -31,10 +31,13 @@ impl Highlighter {
             "|", ".", "#", "=", ";"
         ];
         let blue: Vec<&str> = vec![
-            "use", "pub", "struct", "let", "mut", 
-            "derive", "fn", "impl", "self", "if",
-            "in", "from", "crate", "else", "for", 
-            "return"
+            "as", "break", "const", "continue",
+            "crate", "derive", "else", "enum", 
+            "extern", "fn", "for", "if", "impl", "in", 
+            "let", "match", "mod", "move", "mut",
+            "pub", "ref", "return", "self",
+            "Self", "static", "struct", "super",
+            "trait", "type", "unsafe", "use", "where", "while"
         ];
         let yellow: Vec<&str> = vec![
             "bool", "loop", "Result", "Error", "std", 
@@ -43,7 +46,8 @@ impl Highlighter {
         ];
         let red: Vec<&str> = vec![
             "0", "1", "2", "3", "4", 
-            "5", "6", "7", "8", "9"
+            "5", "6", "7", "8", "9",
+            "true", "false"
         ];
 
         for _i in 1..10 {}
@@ -77,15 +81,17 @@ impl Highlighter {
 
         let mut comment: bool = false; // If the current token is going to be part of a comment.
         let mut string: bool = false; // If the current token is going to be part of a string.
+
         let mut prev_period: bool = false; // If the previous individual character token was a period.
         let mut prev_fn: bool = false; // If the previous running token was "fn" for function definition.
+        let mut colon_conter: i32 = 0; // Counts the number of colons in a row. Used for function definitions.
 
         for _i in 0..l.len() {
             // Pushes the current character to the running string.
             let c: char = l_chars.next().unwrap();
 
             // Any characters following a slash must compose a comment.
-            if c == '/' { comment = true; }
+            if c == '/' && !string { comment = true; }
             if comment {
                 running.push(c);
                 continue;
@@ -221,4 +227,3 @@ impl Highlighter {
         Ok(token_vec)
     }
 }
-
