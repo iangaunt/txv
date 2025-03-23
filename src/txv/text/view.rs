@@ -1,11 +1,11 @@
+use crate::txv::buffer::Buffer;
+use crate::txv::editor::Location;
+use crate::txv::highlighter::Highlighter;
+use crate::txv::terminal::{Position, Size, Terminal};
+
 use core::cmp::{max, min};
 use crossterm::event::KeyCode;
 use std::io::Error;
-
-use crate::buffer::Buffer;
-use crate::editor::Location;
-use crate::highlighter::Highlighter;
-use crate::terminal::{Position, Size, Terminal};
 
 #[derive(Default)]
 pub struct View {

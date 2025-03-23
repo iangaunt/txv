@@ -4,8 +4,8 @@ use crossterm::event::{
 use std::io::Error;
 use std::path::Path;
 
-use crate::terminal::{Position, Terminal};
-use crate::view::View;
+use crate::txv::terminal::{Position, Terminal};
+use crate::txv::view::View;
 
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Location {
@@ -29,7 +29,7 @@ impl Editor {
         viewer.init().unwrap();
         if viewer.is_buffer_empty() {
             viewer.default(
-                &String::from("txt-editor :: v1.0.0")
+                &String::from("txv :: v1.0.0")
             ).unwrap();
         }
         let result: Result<(), Error> = self.repl();

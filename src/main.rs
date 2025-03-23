@@ -1,21 +1,23 @@
-mod buffer { include!("editor/text/buffer.rs"); }
-mod colors { include!("editor/visuals/colors.rs"); }
-mod editor { include!("editor/editor.rs");}
-mod highlighter { include!("editor/visuals/highlighter.rs"); }
-mod terminal { include!("editor/visuals/terminal.rs"); }
-mod view { include!("editor/text/view.rs"); }
+mod txv { include!("txv.rs"); }
 
-use editor::Editor;
-
-// cd ./target/debug :: ./rust-projects.exe ./text.txt
+use crate::txv::editor::Editor;
+use crate::txv::presence;
 
 pub fn main() {
     let mut editor = Editor::default();
-
     let args: Vec<String> = std::env::args().collect();
+
     if let Some(file) = args.get(1) {
         editor.load(file).unwrap();
     }
 
+    let filename: String = String::from(args.get(1).unwrap());
+    let file_truncated: String;
+    match filename.rfind('/') {
+        Some(ind) => { file_truncated = filename[(ind + 1)..].to_string(); },
+        None => { file_truncated = filename; }
+    }
+
+    presence::presence(file_truncated);
     editor.run();
 }

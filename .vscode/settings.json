@@ -10,6 +10,6 @@
         "Cargo.lock": true,
         "main.pdb": true,
         ".gitignore": true,
-        "Cargo.toml": true
+        // "Cargo.toml": true
     }
 }

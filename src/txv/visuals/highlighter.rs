@@ -1,4 +1,4 @@
-use crate::colors::Colors;
+use crate::txv::colors::Colors;
 use colored::{ColoredString, Colorize};
 use std::collections::HashMap;
 use std::io::Error;
@@ -10,7 +10,7 @@ pub struct Highlighter {
     pub hash: HashMap<String, ColoredString>
 }
 
-impl Hiighlighter {
+impl Highlighter {
     /// Adds a string and its colored version to the hash map.
     pub fn add(&mut self, string: &str, colstr: ColoredString) {
         self.hash.insert(String::from(string), colstr);
@@ -84,7 +84,7 @@ impl Hiighlighter {
 
         let mut prev_period: bool = false; // If the previous individual character token was a period.
         let mut prev_fn: bool = false; // If the previous running token was "fn" for function definition.
-        let mut colon_conter: i32 = 0; // Counts the number of colons in a row. Used for function definitions.
+        // let mut colon_conter: i32 = 0; // Counts the number of colons in a row. Used for function definitions.
 
         for _i in 0..l.len() {
             // Pushes the current character to the running string.

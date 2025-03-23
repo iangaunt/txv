@@ -1,5 +1,5 @@
-use crate::editor::Location;
-use crate::terminal::Position;
+use crate::txv::editor::Location;
+use crate::txv::terminal::Position;
 
 use core::cmp::max;
 use std::io::Error;

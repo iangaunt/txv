@@ -5,8 +5,6 @@ use crossterm::style::Print;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size, Clear, ClearType};
 use std::io::{Error, stdout, Write};
 
-use crate::highlighter::Highlighter;
-
 #[derive(Copy, Clone)]
 pub struct Size {
     pub height: usize,
@@ -20,9 +18,7 @@ pub struct Position {
 }
 
 #[derive(Default)]
-pub struct Terminal {
-    pub highlighter: Highlighter
-}
+pub struct Terminal {}
 
 impl Terminal {
     pub fn initialize() -> Result<(), Error> {
