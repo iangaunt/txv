@@ -122,7 +122,8 @@ impl View {
             KeyCode::Down => { 
                 y = min(
                 height.saturating_sub(1), 
-                y.saturating_add(1)); 
+                y.saturating_add(1)
+                ); 
 
                 if y == height - 1 {
                     row = min(
@@ -139,28 +140,34 @@ impl View {
             }
             
             KeyCode::Left => { 
-                x = max(2, x.saturating_sub(1));
+                // If the cursor is in the top left corner, then skip left logic.
+                if x == 2 && y == 0 { return Ok(()); }
 
+                // If the cursor is on the left of the terminal, then 
                 if x == 2 {
                     col = max(0, col.saturating_sub(1));
-                    y = max(0, y.saturating_sub(1));
 
-                    if y == 0 {
-                        row = row.saturating_sub(1);
+                    if y == 0 { row = row.saturating_sub(1); }
+                    
+                    if col == 0 {
+                        y = max(0, y.saturating_sub(1));
+                        x = self.buffer.vector[y.saturating_add(row)].len() + 3;
+                        if self.buffer.vector[y.saturating_add(row)].len() == 0 { x = 2; }
                     }
-
-                    x = self.buffer.vector[y.saturating_add(row)].len() + 1;
-                    if self.buffer.vector[y.saturating_add(row)].len() == 0 { x = x.saturating_add(1); }
                 }
+
+                x = max(2, x.saturating_sub(1));
             }
 
             KeyCode::Right => { 
+                if y == height - 1 { return Ok(()); }
+
                 x = min(
                     width.saturating_sub(1), 
                     x.saturating_add(1)
                 ); 
 
-                if x == self.buffer.vector[y.saturating_add(row)].len() + 2 
+                if x == self.buffer.vector[y.saturating_add(row)].len() + 3 
                     || self.buffer.vector[y.saturating_add(row)].len() == 0 {
 
                     x = 2;
@@ -174,7 +181,7 @@ impl View {
                 if x == width - 1 {
                     col = col.saturating_add(1);
                 }
-            }
+            },
 
             _ => (),
         }
@@ -184,6 +191,7 @@ impl View {
 
         Ok(())
     }
+
 
     pub fn is_buffer_empty(&self) -> bool {
         self.buffer.is_empty()

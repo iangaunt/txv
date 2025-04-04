@@ -1,10 +1,15 @@
 use discord_rich_presence::{activity::{self, Assets}, DiscordIpc, DiscordIpcClient};
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
 
+/// Spawns a thread for updating Discord Rich Presence depending on 
+/// the current file, which is passed into the thread by the initial 
+/// call to the editor.
 pub fn presence(filename: String) {
+    // Creates a thread that loops every 10 seconds,
+    // sending an API call to Discord's RP handler.
     thread::spawn(move || {
         loop {
+            // Connects to the client and creates RP information.
             let mut client = DiscordIpcClient::new("1352769914976342077").unwrap();
             let display: Assets = Assets::new()
                 .large_image("txv_logo")
@@ -15,6 +20,7 @@ pub fn presence(filename: String) {
             let mut detail = String::from("Editing ");
             detail.push_str(&filename);
 
+            // Attempts to connect with the client.
             match client.connect() {
                 Ok(()) => {
                     let payload = activity::Activity::new()
@@ -27,7 +33,7 @@ pub fn presence(filename: String) {
                 Err(_err) => { println!("connection error"); }
             }
 
-            thread::sleep(Duration::from_secs(10000));
+            thread::sleep(Duration::from_secs(86400));
         }
     });
 }
