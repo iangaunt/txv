@@ -1,5 +1,8 @@
-use crate::txv::hls::rs_highlighter::RustHighlighter;
-use crate::txv::hls::txt_highlighter::TextHighlighter;
+use crate::txv::hls::{
+    cpp_highlighter::CppHighlighter,
+    rs_highlighter::RustHighlighter, 
+    txt_highlighter::TextHighlighter
+};
 use colored::ColoredString;
 use std::io::Error;
 
@@ -8,6 +11,8 @@ use std::io::Error;
 #[derive(Default)]
 pub struct Highlighter {
     pub extension: String,
+
+    pub cpp: CppHighlighter,
     pub rs: RustHighlighter,
     pub txt: TextHighlighter
 }
@@ -19,6 +24,7 @@ impl Highlighter {
     /// This will be modified into another separate class later as it is
     /// currently implemented like shit, and looks like trash.
     pub fn init(&mut self) -> Result<(), Error> {
+        self.cpp.init()?;
         self.rs.init()?;
         Ok(())
     }
@@ -30,8 +36,11 @@ impl Highlighter {
         // Fetches the internal hash map.
         let mut token_vec: Vec<ColoredString> = Vec::new(); 
         
+        if self.extension == "cpp" { token_vec = self.cpp.tokenize(l)?; }
         if self.extension == "rs" { token_vec = self.rs.tokenize(l)?; }
         if self.extension == "txt" { token_vec = self.txt.tokenize(l)?; }
+
+        if token_vec.len() == 0 { token_vec = self.txt.tokenize(l)?; }
 
         Ok(token_vec)
     }

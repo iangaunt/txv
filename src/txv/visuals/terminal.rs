@@ -1,7 +1,9 @@
 use colored::ColoredString;
-use crossterm::cursor::{Hide, MoveTo, Show};
-use crossterm::queue;
-use crossterm::style::Print;
+use crossterm::{
+    cursor::{Hide, MoveTo, Show},
+    style::Print,
+    queue
+};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size, Clear, ClearType};
 use std::io::{Error, stdout, Write};
 
