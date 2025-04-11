@@ -4,7 +4,20 @@ use std::{thread, time::Duration};
 /// Spawns a thread for updating Discord Rich Presence depending on 
 /// the current file, which is passed into the thread by the initial 
 /// call to the editor.
-pub fn presence(filename: String) {
+pub fn presence(filename: String, extension: String) {
+    // Creates the full path to the file icon depending on file extension.
+    let mut small_image: String = String::from("online");
+    if extension == "cpp" || extension == "dart" || extension == "rs" {
+        small_image = String::from("txv_");
+        small_image.push_str(&extension);
+        small_image += "_icon";
+    }
+
+    // Changes the small text message depending on file extension.
+    let mut small_text: String = String::from("Editing a .");
+    small_text.push_str(&extension);
+    small_text += " file";
+                
     // Creates a thread that loops every 10 seconds,
     // sending an API call to Discord's RP handler.
     thread::spawn(move || {
@@ -14,8 +27,8 @@ pub fn presence(filename: String) {
             let display: Assets = Assets::new()
                 .large_image("txv_logo")
                 .large_text("~ :txv")
-                .small_image("online")
-                .small_text("Editing a file");
+                .small_image(&small_image)
+                .small_text(&small_text);
 
             let mut detail = String::from("Editing ");
             detail.push_str(&filename);

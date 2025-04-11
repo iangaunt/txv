@@ -1,5 +1,6 @@
 use crate::txv::hls::{
     cpp_highlighter::CppHighlighter,
+    dart_highlighter::DartHighlighter,
     rs_highlighter::RustHighlighter, 
     txt_highlighter::TextHighlighter
 };
@@ -13,6 +14,7 @@ pub struct Highlighter {
     pub extension: String,
 
     pub cpp: CppHighlighter,
+    pub dart: DartHighlighter,
     pub rs: RustHighlighter,
     pub txt: TextHighlighter
 }
@@ -25,6 +27,7 @@ impl Highlighter {
     /// currently implemented like shit, and looks like trash.
     pub fn init(&mut self) -> Result<(), Error> {
         self.cpp.init()?;
+        self.dart.init()?;
         self.rs.init()?;
         Ok(())
     }
@@ -37,6 +40,7 @@ impl Highlighter {
         let mut token_vec: Vec<ColoredString> = Vec::new(); 
         
         if self.extension == "cpp" { token_vec = self.cpp.tokenize(l)?; }
+        if self.extension == "dart" { token_vec = self.dart.tokenize(l)?; }
         if self.extension == "rs" { token_vec = self.rs.tokenize(l)?; }
         if self.extension == "txt" { token_vec = self.txt.tokenize(l)?; }
 

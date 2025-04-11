@@ -77,7 +77,7 @@ impl View {
         let sx: usize = (&self.buffer.scroll_offset).col;
         let sy: usize = (&self.buffer.scroll_offset).row;
 
-        for i in 0..height {
+        for i in 0..(height - 1) {
             Terminal::move_caret(Position { col: 0, row: i })?;
             Terminal::clear_line()?;
 
@@ -121,18 +121,18 @@ impl View {
             
             KeyCode::Down => { 
                 y = min(
-                height.saturating_sub(1), 
+                height.saturating_sub(2), 
                 y.saturating_add(1)
                 ); 
 
-                if y == height - 1 {
+                if y == height - 2 {
                     row = min(
                         self.buffer.vector.len() - height, 
                         row.saturating_add(1)
                     );
                 }
 
-                if y != height - 1 {
+                if y != height - 2 {
                     if self.buffer.vector[y.saturating_add(row)].len() < x {
                         x = self.buffer.vector[y.saturating_add(row)].len() + 2;
                     }

@@ -59,11 +59,6 @@ impl Terminal {
         Ok(())
     }
 
-    pub fn _print(string: &str) -> Result<(), Error> {
-        queue!(stdout(), Print(string))?;
-        Ok(())
-    }
-
     pub fn vec_print(v: &Vec<ColoredString>) -> Result<(), Error> {
         for i in 0..v.len() {
             queue!(stdout(), Print(

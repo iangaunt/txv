@@ -3,14 +3,14 @@ use colored::{ColoredString, Colorize};
 use std::collections::HashMap;
 use std::io::Error;
 
-/// The CppHighlighter module is used internally to individually color
+/// The DartHighlighter module is used internally to individually color
 /// input tokens before they are pushed into the function queue. 
 #[derive(Default)]
-pub struct CppHighlighter {
+pub struct DartHighlighter {
     pub hash: HashMap<String, ColoredString>
 }
 
-impl CppHighlighter {
+impl DartHighlighter {
     /// Adds a string and its colored version to the hash map.
     pub fn add(&mut self, string: &str, colstr: ColoredString) {
         self.hash.insert(String::from(string), colstr);
@@ -25,26 +25,30 @@ impl CppHighlighter {
         self.hash.insert(String::from(" "), " ".white());
 
         let gray: Vec<&str> = vec![
-            ":", ",", "{", "}", "~",
+            ",", "{", "}", "~", "!",
             "&", "[", "]", "(", ")", 
             "?", "<", ">", "-", "+", 
-            "|", ".", "=", ";", "!"
+            "|", ".", "=", ";", 
         ];
         let blue: Vec<&str> = vec![
-            "alignas", "alignof", "and", "asm",
-            "bitand", "bitor", "bool", "break",
-            "case", "catch", "char", "class", "const",
-            "continue", "do", "double", "else", "enum",
-            "float", "goto", "if", "inline", "int", "long",
-            "namespace", "new", "not", "or", "private",
-            "protected", "public", "return", "short", "signed",
-            "sizeof", "static", "static_cast", "struct",
-            "switch", "this", "throw", "typedef", "union",
-            "unsigned", "using", "void", "volatile", "while",
-            "#include",
+            "abstract", "as", "assert", "async", "await",
+            "base", "break", "case", "catch", "class",
+            "const", "continue", "covariant", "default",
+            "deferred", "do", "dynamic", "else", "enum",	
+            "export", "extends", "extension", "external", "factory",
+            "final", "finally", "for", "Function", "get", 	
+            "hide", "if", "implements", "import", "in",
+            "interface", "is", "late", "library",
+            "mixin", "new",	"null",	"of", "on",	"operator",
+            "part", "required", "rethrow", "return", "sealed", 	"set",
+            "show", "static", "super", "switch",
+            "sync", "this",	"throw",
+            "try", "type", "typedef", "var",
+            "void",	"when",	"with",	"while",
+            "yield", ":"
         ];
         let yellow: Vec<&str> = vec![
-            "std"
+            "double", "int", "bool",
         ];
         let red: Vec<&str> = vec![
             "0", "1", "2", "3", "4", 
@@ -83,13 +87,7 @@ impl CppHighlighter {
 
         let mut comment: bool = false; // If the current token is going to be part of a comment.
         let mut string: bool = false; // If the current token is going to be part of a string.
-        let mut include_statement: bool = false; // If the line contains an #include statement. Used for <> quotes.
-
         let mut prev_period: bool = false; // If the previous individual character token was a period.
-
-        // Stores the two previous tokens to see if they compose an arrow.
-        let mut indiv_two: char = ' ';
-        let mut indiv_one: char = ' ';
 
         for _i in 0..l.len() {
             // Pushes the current character to the running string.
@@ -104,15 +102,6 @@ impl CppHighlighter {
 
             // Add the individual character to the indiv string.
             indiv.push(c);
-
-            if c == '<' && include_statement {
-                string = !string;
-                if string == false {
-                    token_vec.push(Colors::to_green(&indiv));
-                    indiv = String::from("");
-                    continue;
-                }
-            }
 
             if c == '"' { 
                 string = !string;
@@ -133,12 +122,26 @@ impl CppHighlighter {
             // output its colored version and dump the running string.
             if h.contains_key(&indiv) {
                 if h.contains_key(&running) {
-                    if running == "#include" { include_statement = true; }
-
                     token_vec.push(
                         h.get(&running).unwrap().clone()
                     );
                     token_vec.push(h.get(&indiv).unwrap().clone());
+
+                    running = String::from("");
+                    indiv = String::from("");
+                    continue;
+                }
+
+                if c == '(' {
+                    if running.chars().count() > 0 {
+                        if running.chars().nth(0).unwrap().is_ascii_uppercase() {
+                            token_vec.push(Colors::to_yellow(&running));
+                        } else {
+                            token_vec.push(Colors::to_light_blue(&running));
+                        }
+                    }
+                    token_vec.push(h.get(&indiv).unwrap().clone());
+
 
                     running = String::from("");
                     indiv = String::from("");
@@ -188,24 +191,6 @@ impl CppHighlighter {
                     indiv = String::from("");
                     continue;
                 } 
-
-                // token_vec.push(h.get(&String::from(indiv_two)).unwrap().clone().blue());
-                // token_vec.push(h.get(&String::from(indiv_one)).unwrap().clone().blue());
-
-                // If the two previous individual characters compose an arrow, highlight the next
-                // token as light blue (function).
-                if indiv_two == '-' && indiv_one == '>' {
-                    token_vec.push(Colors::to_light_blue(&running));
-                    token_vec.push(h.get(&indiv).unwrap().clone());
-
-                    // Reset the string contents.
-                    running = String::from("");
-                    indiv = String::from("");
-                    continue;
-                }
-
-                indiv_two = indiv_one;
-                indiv_one = c;
 
                 // If this character is a token, set the prev_period flag.
                 if c == '.' { prev_period = true }

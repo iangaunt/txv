@@ -103,13 +103,13 @@ impl RustHighlighter {
             if c == '"' { 
                 string = !string;
                 if string == false {
-                    token_vec.push(Colors::to_string(&indiv));
+                    token_vec.push(Colors::to_green(&indiv));
                     indiv = String::from("");
                     continue;
                 }
             }
             if string {
-                token_vec.push(Colors::to_string(&indiv));
+                token_vec.push(Colors::to_green(&indiv));
                 indiv = String::from("");
                 continue;
             }

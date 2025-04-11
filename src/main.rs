@@ -32,7 +32,7 @@ pub fn main() {
     }
 
     // Displays Rich Presence on Discord if connected.
-    presence::presence(file_truncated);
+    presence::presence(file_truncated, extension.clone());
 
     // Runs the editor program.
     editor.set_extension(extension);
