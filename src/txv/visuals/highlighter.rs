@@ -1,4 +1,5 @@
 use crate::txv::hls::{
+    c_highlighter::CHighlighter,
     cpp_highlighter::CppHighlighter,
     dart_highlighter::DartHighlighter,
     rs_highlighter::RustHighlighter, 
@@ -13,6 +14,7 @@ use std::io::Error;
 pub struct Highlighter {
     pub extension: String,
 
+    pub c: CHighlighter,
     pub cpp: CppHighlighter,
     pub dart: DartHighlighter,
     pub rs: RustHighlighter,
@@ -26,6 +28,7 @@ impl Highlighter {
     /// This will be modified into another separate class later as it is
     /// currently implemented like shit, and looks like trash.
     pub fn init(&mut self) -> Result<(), Error> {
+        self.c.init()?;
         self.cpp.init()?;
         self.dart.init()?;
         self.rs.init()?;
@@ -39,6 +42,7 @@ impl Highlighter {
         // Fetches the internal hash map.
         let mut token_vec: Vec<ColoredString> = Vec::new(); 
         
+        if self.extension == "c" { token_vec = self.c.tokenize(l)?; }
         if self.extension == "cpp" { token_vec = self.cpp.tokenize(l)?; }
         if self.extension == "dart" { token_vec = self.dart.tokenize(l)?; }
         if self.extension == "rs" { token_vec = self.rs.tokenize(l)?; }

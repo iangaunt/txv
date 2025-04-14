@@ -7,7 +7,7 @@ use std::{thread, time::Duration};
 pub fn presence(filename: String, extension: String) {
     // Creates the full path to the file icon depending on file extension.
     let mut small_image: String = String::from("online");
-    if extension == "cpp" || extension == "dart" || extension == "rs" {
+    if extension == "c" || extension == "cpp" || extension == "dart" || extension == "rs" {
         small_image = String::from("txv_");
         small_image.push_str(&extension);
         small_image += "_icon";
