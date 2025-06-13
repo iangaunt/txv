@@ -104,7 +104,7 @@ impl DartHighlighter {
 
             if c == '"' { 
                 string = !string;
-                if string == false {
+                if !string {
                     token_vec.push(Colors::to_green(&indiv));
                     indiv = String::from("");
                     continue;
@@ -159,13 +159,11 @@ impl DartHighlighter {
                         running = String::from("");
                         indiv = String::from("");
                         continue;
-                    } else {
-                        if running.chars().count() > 0 {
-                            if running.chars().nth(0).unwrap().is_ascii_uppercase() {
-                                token_vec.push(Colors::to_yellow(&running));
-                            } else {
-                                token_vec.push(Colors::to_default(&running));
-                            }
+                    } else if running.chars().count() > 0 {
+                        if running.chars().nth(0).unwrap().is_ascii_uppercase() {
+                            token_vec.push(Colors::to_yellow(&running));
+                        } else {
+                            token_vec.push(Colors::to_default(&running));
                         }
                     }
                     

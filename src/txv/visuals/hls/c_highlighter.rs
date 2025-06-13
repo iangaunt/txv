@@ -35,13 +35,13 @@ impl CHighlighter {
             "bitand", "bitor", "bool", "break",
             "case", "catch", "char", "class", "const",
             "continue", "do", "double", "else", "enum",
-            "float", "goto", "if", "inline", "int", "long",
+            "float", "for", "goto", "if", "inline", "int", "long",
             "namespace", "new", "not", "or", "private",
             "protected", "public", "return", "short", "signed",
             "sizeof", "static", "static_cast", "struct",
             "switch", "this", "throw", "typedef", "union",
             "unsigned", "using", "void", "volatile", "while",
-            "#include",
+            "#define", "#include"
         ];
         let yellow: Vec<&str> = vec![
             "std"
@@ -107,7 +107,7 @@ impl CHighlighter {
 
             if c == '<' && include_statement {
                 string = !string;
-                if string == false {
+                if !string {
                     token_vec.push(Colors::to_green(&indiv));
                     indiv = String::from("");
                     continue;
@@ -116,7 +116,7 @@ impl CHighlighter {
 
             if c == '"' { 
                 string = !string;
-                if string == false {
+                if !string {
                     token_vec.push(Colors::to_green(&indiv));
                     indiv = String::from("");
                     continue;
@@ -145,6 +145,22 @@ impl CHighlighter {
                     continue;
                 }
 
+                if c == '(' {
+                    if running.chars().count() > 0 {
+                        if running.chars().nth(0).unwrap().is_ascii_uppercase() {
+                            token_vec.push(Colors::to_yellow(&running));
+                        } else {
+                            token_vec.push(Colors::to_light_blue(&running));
+                        }
+                    }
+                    token_vec.push(h.get(&indiv).unwrap().clone());
+
+
+                    running = String::from("");
+                    indiv = String::from("");
+                    continue;
+                }
+
                 // If this character is a space, then we color the running 
                 // token and add it to the token list.
                 if c == ' ' {
@@ -157,13 +173,11 @@ impl CHighlighter {
                         running = String::from("");
                         indiv = String::from("");
                         continue;
-                    } else {
-                        if running.chars().count() > 0 {
-                            if running.chars().nth(0).unwrap().is_ascii_uppercase() {
-                                token_vec.push(Colors::to_yellow(&running));
-                            } else {
-                                token_vec.push(Colors::to_default(&running));
-                            }
+                    } else if running.chars().count() > 0 {
+                        if running.chars().nth(0).unwrap().is_ascii_uppercase() {
+                            token_vec.push(Colors::to_yellow(&running));
+                        } else {
+                            token_vec.push(Colors::to_default(&running));
                         }
                     }
                     

@@ -5,18 +5,18 @@ use std::{thread, time::Duration};
 /// the current file, which is passed into the thread by the initial 
 /// call to the editor.
 pub fn presence(filename: String, extension: String) {
+    // A vector containing all of the allowed extensions.
+    let allowed_extensions: Vec<&str> = vec!("c", "cpp", "dart", "rs");
+
     // Creates the full path to the file icon depending on file extension.
-    let mut small_image: String = String::from("online");
-    if extension == "c" || extension == "cpp" || extension == "dart" || extension == "rs" {
-        small_image = String::from("txv_");
-        small_image.push_str(&extension);
-        small_image += "_icon";
-    }
+    let small_image: String = 
+    match allowed_extensions.iter().position(|&s| s == extension) {
+        Some(_) => { format!("txv_{}_icon", &extension) }
+        None => { String::from("online") }
+    };
 
     // Changes the small text message depending on file extension.
-    let mut small_text: String = String::from("Editing a .");
-    small_text.push_str(&extension);
-    small_text += " file";
+    let small_text: String = format!("Editing a .{} file", &extension);
                 
     // Creates a thread that loops every 10 seconds,
     // sending an API call to Discord's RP handler.
@@ -37,16 +37,17 @@ pub fn presence(filename: String, extension: String) {
             match client.connect() {
                 Ok(()) => {
                     let payload = activity::Activity::new()
-                        .details("~ :txv 1.0.0").assets(display).state(&detail);
+                        .details("~ :txv 1.1.0").assets(display).state(&detail);
+                    
                     match client.set_activity(payload) {
                         Ok(()) => {}, 
-                        Err(_err) => { println!("activity error"); }
+                        Err(_err) => { println!("Activity error."); }
                     }
                 },
-                Err(_err) => { println!("connection error"); }
+                Err(_err) => { println!("Connection error."); }
             }
 
-            thread::sleep(Duration::from_secs(86400));
+            thread::sleep(Duration::from_secs(3600));
         }
     });
 }

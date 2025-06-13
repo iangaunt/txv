@@ -15,7 +15,7 @@ pub struct Buffer {
 impl Buffer {
     /// Checks to see if the internal vector is empty.
     pub fn is_empty(&self) -> bool {
-        self.vector.len() == 0
+        self.vector.is_empty()
     }
 
     /// Adds a character at a specific point in the terminal depending on 
@@ -93,7 +93,7 @@ impl Buffer {
 
         // If the cursor is at the first position, then skip deleting.
         if self.location.x == 2 { return Ok(()) }
-        if b_line.len() == 0 { return Ok(()) }
+        if b_line.is_empty() { return Ok(()) }
 
         let mut b_chars = b_line.chars();
         let mut new_line = String::from("");

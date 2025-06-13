@@ -13,8 +13,7 @@ impl TextHighlighter {
     /// can display the contents of the returned vector with `Terminal::print_vec`.
     pub fn tokenize(&self, l: &str) -> Result<Vec<ColoredString>, Error> {
         // A running list of the colored tokens to be displayed.
-        let mut token_vec: Vec<ColoredString> = Vec::new();
-        token_vec.push(Colors::to_default(&l));
+        let token_vec: Vec<ColoredString> = vec![Colors::to_default(l)];
         Ok(token_vec)
     }
 }

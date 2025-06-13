@@ -48,7 +48,7 @@ impl Highlighter {
         if self.extension == "rs" { token_vec = self.rs.tokenize(l)?; }
         if self.extension == "txt" { token_vec = self.txt.tokenize(l)?; }
 
-        if token_vec.len() == 0 { token_vec = self.txt.tokenize(l)?; }
+        if token_vec.is_empty() { token_vec = self.txt.tokenize(l)?; }
 
         Ok(token_vec)
     }

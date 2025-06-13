@@ -27,6 +27,7 @@ pub struct Editor {
 }
 
 impl Editor {
+    /// Sets the extension of the file open in the editor.
     pub fn set_extension(&mut self, extension: String) {
         self.viewer.highlighter.extension = extension;
     }
@@ -35,19 +36,21 @@ impl Editor {
     pub fn run(&mut self) {
         // Initializes the viewport of the terminal editor.
         let viewer: &mut View = &mut self.viewer;
+        viewer.filename = self.filename.clone();
         
         // Initializes the terminal.
         Terminal::initialize().unwrap();
         viewer.init().unwrap();
 
         // If the viewer buffer is empty (no file is closed), show the default screen.
-        if viewer.is_buffer_empty() {
+        if viewer.is_empty() {
             viewer.default(
                 &String::from("txv :: v1.0.0")
             ).unwrap();
         }
 
         // Enter the editor loop.
+        let _ = viewer.render();
         let result: Result<(), Error> = self.repl();
 
         // Close the editor once the loop is terminated.
@@ -70,6 +73,7 @@ impl Editor {
         loop {
             // Refreshes the contents of the viewport.
             self.refresh()?;
+
             if self.should_quit {
                 break; // End the loop if forcekilled.
             }
@@ -82,7 +86,6 @@ impl Editor {
         Ok(())
     }
 
-
     fn refresh(&mut self) -> Result<(), Error> {
         let viewer: &mut View = &mut self.viewer;
         Terminal::hide_caret()?;
@@ -92,6 +95,7 @@ impl Editor {
             viewer.default(&String::from("Goodbye."))?;
         } else {
             viewer.render()?;
+
             Terminal::move_caret(Position{ 
                 col: viewer.buffer.location.x, 
                 row: viewer.buffer.location.y 
@@ -133,6 +137,7 @@ impl Editor {
 
                 KeyCode::Char(c) => {
                     self.viewer.buffer.add_char(*c)?;
+                    self.viewer.refresh_line()?;
                 }
 
                 KeyCode::Enter => { self.viewer.buffer.add_line(); }

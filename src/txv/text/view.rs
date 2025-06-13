@@ -4,13 +4,16 @@ use crate::txv::highlighter::Highlighter;
 use crate::txv::terminal::{Position, Size, Terminal};
 
 use core::cmp::{max, min};
+use colored::ColoredString;
 use crossterm::event::KeyCode;
 use std::io::Error;
 
 #[derive(Default)]
 pub struct View {
     pub buffer: Buffer,
-    pub highlighter: Highlighter
+    pub highlighter: Highlighter,
+
+    pub filename: String
 }
 
 impl View {
@@ -22,9 +25,9 @@ impl View {
     }
 
     fn center(msg: &str) -> Result<String, Error> {
-        let mut run = format!("{}", msg);
+        let mut run = msg.to_string();
         
-        let width: usize = Terminal::size()?.width as usize;
+        let width: usize = Terminal::size()?.width;
         let spaces = " ".repeat((width - msg.len()) / 2 - 1);
 
         run = format!("{spaces}{run}");
@@ -46,8 +49,8 @@ impl View {
         let Size{height, ..}: Size = Terminal::size()?;
         let buff_vec = &mut self.buffer.vector;
 
-        let sx: usize = (&self.buffer.scroll_offset).col;
-        let sy: usize = (&self.buffer.scroll_offset).row;
+        let sx: usize = self.buffer.scroll_offset.col;
+        let sy: usize = self.buffer.scroll_offset.row;
 
         for i in sy..height + sy {
             let mut st: String = String::from("");
@@ -71,11 +74,13 @@ impl View {
         let Size{height, ..}: Size = Terminal::size()?;
         let buff_vec = &self.buffer.vector;
 
-        let mut tilda_vec: Vec<String> = Vec::new();
-        tilda_vec.push(String::from("~"));
+        let tilda_vec: Vec<ColoredString> = self.highlighter.tokenize("~").unwrap();
 
-        let sx: usize = (&self.buffer.scroll_offset).col;
-        let sy: usize = (&self.buffer.scroll_offset).row;
+        let x: usize = self.buffer.location.x;
+        let y: usize = self.buffer.location.y;
+
+        let sx: usize = self.buffer.scroll_offset.col;
+        let sy: usize = self.buffer.scroll_offset.row;
 
         for i in 0..(height - 1) {
             Terminal::move_caret(Position { col: 0, row: i })?;
@@ -90,12 +95,55 @@ impl View {
                         &self.highlighter.tokenize(&line_format).unwrap()
                     )?;
                 } else {
-                    Terminal::vec_print(&self.highlighter.tokenize("~").unwrap())?;
+                    Terminal::vec_print(&tilda_vec)?;
                 }
             } else {
-                Terminal::vec_print(&self.highlighter.tokenize("~").unwrap())?;
+                Terminal::vec_print(&tilda_vec)?;
             }
         }
+
+        self.stats_line(height)?;
+        Terminal::move_caret(Position { col: x, row: y })?;
+
+        Ok(())
+    }
+
+    pub fn refresh_line(&mut self) -> Result<(), Error> {
+        let buff_vec = &self.buffer.vector;
+
+        let y: usize = self.buffer.location.y;
+        let sx: usize = self.buffer.scroll_offset.col;
+        let sy: usize = self.buffer.scroll_offset.row;
+
+        let mut l: &str = &buff_vec[y + sy];
+        Terminal::move_caret(Position { col: 0, row: y })?;
+
+        if l.len() > sx {
+            l = &l[sx..];
+            let line_format = format!("~ {l}",);
+            Terminal::vec_print(
+                &self.highlighter.tokenize(&line_format).unwrap()
+            )?;
+        }
+
+        Ok(())
+    }
+
+    pub fn stats_line(&mut self, height: usize) -> Result<(), Error> {
+        let pos_string: String = format!("{}, {}", 
+            self.buffer.location.y + self.buffer.scroll_offset.row,
+            self.buffer.location.x + self.buffer.scroll_offset.col - 2
+        );
+
+        let desc = String::from("~ txv :: ") + &self.filename + "    " + &pos_string;
+        let mut spaces = String::from("");
+        while (spaces.len() + desc.len()) < Terminal::size()?.width {
+            spaces.push(' ');
+        }
+
+        Terminal::move_caret(Position { col: 0, row: height - 1})?;
+        Terminal::clear_line()?;
+        Terminal::print(spaces + &desc)?;
 
         Ok(())
     }
@@ -114,7 +162,7 @@ impl View {
                     row = max(0, row.saturating_sub(1));
                 }
 
-                if self.buffer.vector[y].len() < x {
+                if self.buffer.vector[y].len() < x && x != 2 {
                     x = self.buffer.vector[y].len() + 2;
                 }
             }
@@ -132,10 +180,11 @@ impl View {
                     );
                 }
 
-                if y != height - 2 {
-                    if self.buffer.vector[y.saturating_add(row)].len() < x {
-                        x = self.buffer.vector[y.saturating_add(row)].len() + 2;
-                    }
+                if y != height - 2 
+                    && self.buffer.vector[y.saturating_add(row)].len() < x 
+                    && x != 2 {
+                    
+                    x = self.buffer.vector[y.saturating_add(row)].len() + 2;
                 }
             }
             
@@ -152,7 +201,7 @@ impl View {
                     if col == 0 {
                         y = max(0, y.saturating_sub(1));
                         x = self.buffer.vector[y.saturating_add(row)].len() + 3;
-                        if self.buffer.vector[y.saturating_add(row)].len() == 0 { x = 2; }
+                        if self.buffer.vector[y.saturating_add(row)].is_empty() { x = 2; }
                     }
                 }
 
@@ -168,7 +217,7 @@ impl View {
                 ); 
 
                 if x == self.buffer.vector[y.saturating_add(row)].len() + 3 
-                    || self.buffer.vector[y.saturating_add(row)].len() == 0 {
+                    || self.buffer.vector[y.saturating_add(row)].is_empty() {
 
                     x = 2;
                     y = min(height - 1, y.saturating_add(1));
@@ -192,8 +241,7 @@ impl View {
         Ok(())
     }
 
-
-    pub fn is_buffer_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.buffer.is_empty()
     }
 }
